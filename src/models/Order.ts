@@ -1,0 +1,4 @@
+import { Schema, model } from 'mongoose';
+const line = new Schema({productId:{type:Schema.Types.ObjectId,required:true},name:{type:String,required:true},unitPrice:{type:Number,required:true},quantity:{type:Number,required:true}},{_id:false});
+const schema = new Schema({code:{type:String,unique:true,required:true},userId:{type:Schema.Types.ObjectId,ref:'User'},shipping:{name:String,phone:String,address:String},items:{type:[line],required:true},total:{type:Number,required:true},status:{type:String,default:'placed'}},{timestamps:true});
+export const Order = model('Order',schema);
