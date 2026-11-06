@@ -14,7 +14,11 @@ npm run dev
 # API: http://localhost:4000/api/health
 ```
 
-`npm run seed` upsert 8 sản phẩm, tài khoản `customer@minishop.demo` và `admin@minishop.demo`, cùng 3 marketing snippets mẫu đang tắt; mật khẩu lấy từ `SEED_CUSTOMER_PASSWORD` và `SEED_ADMIN_PASSWORD` bạn đặt. Seed lại không xóa đơn hàng hoặc ghi đè snippet đã sửa. `npm run db:reset -- --confirm` xóa **toàn bộ sản phẩm, tài khoản, đơn hàng và marketing snippets** của DB `minishop`; không chạy trên DB cần giữ.
+`npm run seed` upsert 8 sản phẩm, hai tài khoản demo cũ, ba tài khoản QA `admin@minishop.local`, `alice@minishop.local`, `bob@minishop.local`, 8 đơn QA (4 của Alice, 4 của Bob) và 3 marketing snippets mẫu đang tắt. Mật khẩu QA là `Minishop@123` (bcrypt); mật khẩu hai tài khoản demo cũ lấy từ `SEED_CUSTOMER_PASSWORD` và `SEED_ADMIN_PASSWORD`. Seed lại không nhân đôi đơn QA, không xóa đơn thật hoặc ghi đè snippet đã sửa. `npm run db:reset -- --confirm` xóa **toàn bộ sản phẩm, tài khoản, đơn hàng và marketing snippets** của DB `minishop`; không chạy trên DB cần giữ.
+
+## Account và đơn hàng
+
+Các route `GET /api/account/orders`, `GET /api/account/orders/:id`, `PATCH /api/account/profile`, `GET /api/account/addresses`, `POST /api/account/addresses` yêu cầu Bearer token. Khách chỉ xem đơn gắn `userId` của mình; ID đơn của người khác trả 404. Các route `GET /api/admin/orders` và `GET /api/admin/orders/:id` yêu cầu role `ADMIN`. Role mới dùng `CUSTOMER`/`ADMIN`; API vẫn đọc được phiên và dữ liệu role viết thường cũ. Đơn hàng có thêm `shippingStatus` và `trackingNumber` để hiển thị tiến độ giao hàng.
 
 ## Marketing API
 
