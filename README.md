@@ -14,7 +14,7 @@ npm run dev
 # API: http://localhost:4000/api/health
 ```
 
-`npm run seed` upsert 8 sản phẩm, hai tài khoản demo cũ, ba tài khoản QA `admin@minishop.local`, `alice@minishop.local`, `bob@minishop.local`, 8 đơn QA (4 của Alice, 4 của Bob), 3 marketing snippets mẫu đang tắt, 3 partner và 8 coupon. Chuột Aero có URL ảnh supplier mẫu. Mật khẩu QA là `Minishop@123` (bcrypt); mật khẩu hai tài khoản demo cũ lấy từ `SEED_CUSTOMER_PASSWORD` và `SEED_ADMIN_PASSWORD`. Seed lại không nhân đôi đơn QA/partner/coupon, không xóa đơn thật hoặc ghi đè partner/snippet/coupon đã sửa. `npm run db:reset -- --confirm` xóa **toàn bộ sản phẩm, tài khoản, đơn hàng, marketing snippets, partners, coupons và carts** của DB `minishop`; không chạy trên DB cần giữ.
+`npm run seed` upsert 8 sản phẩm có mô tả và thông số cụ thể, hai tài khoản demo cũ, ba tài khoản QA `admin@minishop.local`, `alice@minishop.local`, `bob@minishop.local`, 8 đơn QA (4 của Alice, 4 của Bob), 3 marketing snippets mẫu đang tắt, 3 partner và 8 coupon. Ảnh sản phẩm nằm trong `frontend/public/products` và được lưu theo đường dẫn local trong MongoDB; các thông số là dữ liệu demo, không phải cam kết của nhà sản xuất. Mật khẩu QA là `Minishop@123` (bcrypt); mật khẩu hai tài khoản demo cũ lấy từ `SEED_CUSTOMER_PASSWORD` và `SEED_ADMIN_PASSWORD`. Seed lại không nhân đôi đơn QA/partner/coupon, không xóa đơn thật hoặc ghi đè partner/snippet/coupon đã sửa. `npm run db:reset -- --confirm` xóa **toàn bộ sản phẩm, tài khoản, đơn hàng, marketing snippets, partners, coupons và carts** của DB `minishop`; không chạy trên DB cần giữ.
 
 ## Account và đơn hàng
 

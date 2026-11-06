@@ -28,7 +28,7 @@ const origins = (process.env.CORS_ORIGINS || 'http://localhost:3000').split(',')
 app.use(cors({origin:(origin,cb)=>cb(null,!origin || origins.includes(origin))}));
 const route=(fn:(req:Request,res:Response)=>Promise<void>)=>(req:Request,res:Response,next:NextFunction)=>{fn(req,res).catch(next);};
 const error=(res:Response,status:number,code:string,message:string)=>res.status(status).json({error:{code,message}});
-const productDto=(p:any)=>({id:String(p._id),name:p.name,slug:p.slug,description:p.description,image:p.image,supplierImageUrl:p.supplierImageUrl||'',category:p.category||'general',price:p.price,stock:p.stock});
+const productDto=(p:any)=>({id:String(p._id),name:p.name,slug:p.slug,description:p.description,image:p.image,supplierImageUrl:p.supplierImageUrl||'',category:p.category||'general',specifications:p.specifications||[],price:p.price,stock:p.stock});
 
 app.get('/api/health',(_req,res)=>res.status(dbReady()?200:503).json({status:dbReady()?'ok':'unavailable'}));
 app.get('/api/products',route(async(req,res)=>{const q=typeof req.query.q==='string'?req.query.q.trim().slice(0,100):'';const filter=q?{name:{$regex:q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),$options:'i'}}:{};const products=await Product.find(filter).sort({name:1}).lean();res.json({products:products.map(productDto)});}));

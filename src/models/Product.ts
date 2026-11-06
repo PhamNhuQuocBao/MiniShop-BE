@@ -1,3 +1,3 @@
 import { Schema, model } from 'mongoose';
-const schema = new Schema({ name: {type:String,required:true}, slug:{type:String,required:true,unique:true}, description:{type:String,required:true}, image:{type:String,required:true}, supplierImageUrl:{type:String}, category:{type:String,default:'general'}, price:{type:Number,required:true,min:0}, stock:{type:Number,required:true,min:0} },{timestamps:true});
+const schema = new Schema({ name: {type:String,required:true}, slug:{type:String,required:true,unique:true}, description:{type:String,required:true}, image:{type:String,required:true}, supplierImageUrl:{type:String}, category:{type:String,default:'general'}, specifications:{type:[String],default:[]}, price:{type:Number,required:true,min:0}, stock:{type:Number,required:true,min:0} },{timestamps:true});
 export const Product = model('Product',schema);
