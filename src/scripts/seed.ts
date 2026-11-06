@@ -6,6 +6,7 @@ import { User } from '../models/User';
 import { MarketingSnippet } from '../models/MarketingSnippet';
 import { Order } from '../models/Order';
 import { Partner } from '../models/Partner';
+import { Coupon } from '../models/Coupon';
 
 const products=[
   ['Chuột không dây Aero','chuot-aero','Chuột gọn nhẹ, kết nối ổn định cho bàn làm việc.','mouse',349000,25],
@@ -52,10 +53,26 @@ const partners = [
   { id: '700000000000000000000002', name: 'EuroGadgets', trackingUrl: 'https://example.com/euro-gadgets', enabled: true },
   { id: '700000000000000000000003', name: 'Phụ kiện Việt', trackingUrl: 'https://example.com/phu-kien-viet', enabled: true },
 ] as const;
+const categories: Record<string,string> = {
+  'chuot-aero':'input', 'ban-phim-mini-68':'input', 'tai-nghe-studio-lite':'audio',
+  'usb-c-hub-6':'connectivity', 'gia-do-laptop-fold':'desk', 'cap-usb-c-2m':'connectivity',
+  'webcam-full-hd':'video', 'lot-chuot-desk-mat':'desk',
+};
+const couponExpiry = new Date('2030-12-31T23:59:59Z');
+const coupons = [
+  {code:'SUMMER10',type:'percent',value:10,rules:{op:'and',rules:[{op:'mutualExclusionGroup',group:'seasonal'}]},stackable:true,maxUses:1000},
+  {code:'SHIP50',type:'fixed',value:50000,rules:{op:'and',rules:[]},stackable:true,maxUses:1000},
+  {code:'BOGOMOUSE',type:'bogo',value:1,rules:{op:'minQuantity',productSlug:'chuot-aero',min:2},stackable:false,maxUses:200},
+  {code:'BUNDLE150',type:'bundle',value:150000,rules:{op:'and',rules:[{op:'minQuantity',productSlug:'chuot-aero',min:1},{op:'minQuantity',productSlug:'ban-phim-mini-68',min:1}]},stackable:true,maxUses:300},
+  {code:'STACK5',type:'percent',value:5,rules:{op:'and',rules:[{op:'coupon',code:'SUMMER10'},{op:'coupon',code:'SHIP50'},{op:'coupon',code:'BUNDLE150'},{op:'mutualExclusionGroup',group:'bonus'}]},stackable:true,maxUses:100},
+  {code:'WELCOME5',type:'percent',value:5,rules:{op:'and',rules:[{op:'mutualExclusionGroup',group:'seasonal'}]},stackable:true,maxUses:500},
+  {code:'AUDIO20',type:'percent',value:20,rules:{op:'category',category:'audio',min:1},stackable:false,maxUses:250},
+  {code:'DESK80',type:'fixed',value:80000,rules:{op:'category',category:'desk',min:2},stackable:true,maxUses:300},
+] as const;
 
 async function main(){
   await connectDb();
-  for(const [name,slug,description,image,price,stock] of products){await Product.updateOne({slug},{$set:{name,description,image,price,stock}}, {upsert:true});}
+  for(const [name,slug,description,image,price,stock] of products){await Product.updateOne({slug},{$set:{name,description,image,category:categories[slug],price,stock}}, {upsert:true});}
   await Product.updateOne({slug:'chuot-aero'},{$set:{supplierImageUrl:'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=800&q=80'}});
   const accounts=[['Khách hàng mẫu','customer@minishop.demo','CUSTOMER',process.env.SEED_CUSTOMER_PASSWORD],['Quản trị mẫu','admin@minishop.demo','ADMIN',process.env.SEED_ADMIN_PASSWORD]] as const;
   for(const [name,email,role,password] of accounts){if(!password || password.length<8)throw new Error(`Set seed password (at least 8 chars) for ${email}`);await User.updateOne({email},{$set:{name,role,passwordHash:await bcrypt.hash(password,12)}},{upsert:true});}
@@ -63,12 +80,13 @@ async function main(){
   for(const account of qaAccounts){await User.updateOne({email:account.email},{$setOnInsert:{...account,passwordHash:qaPasswordHash}},{upsert:true});}
   for(const snippet of snippets){await MarketingSnippet.updateOne({name:snippet.name},{$setOnInsert:snippet},{upsert:true});}
   for(const partner of partners){await Partner.updateOne({_id:partner.id},{$setOnInsert:{name:partner.name,trackingUrl:partner.trackingUrl,enabled:partner.enabled}},{upsert:true});}
+  for(const coupon of coupons){await Coupon.updateOne({code:coupon.code},{$setOnInsert:{...coupon,expiresAt:couponExpiry,uses:0}},{upsert:true});}
   for(const [code,email,slug,quantity,shippingStatus,trackingNumber] of qaOrders){
     const [user,product] = await Promise.all([User.findOne({email}).lean(),Product.findOne({slug}).lean()]);
     if(!user || !product)throw new Error(`Missing QA seed reference for ${code}`);
     const shipping = email.startsWith('alice') ? {name:'Nguyễn Alice',phone:'0901234567',address:'12 Nguyễn Trãi, Quận 1, TP.HCM'} : {name:'Trần Bob',phone:'0912345678',address:'45 Trần Hưng Đạo, Hoàn Kiếm, Hà Nội'};
     await Order.updateOne({code},{$setOnInsert:{code,userId:user._id,shipping,items:[{productId:product._id,name:product.name,unitPrice:product.price,quantity}],total:product.price*quantity,status:'placed',shippingStatus,trackingNumber}},{upsert:true});
   }
-  console.log('Seeded 8 products, 5 demo users, 8 QA orders, 3 disabled marketing snippets, and 3 partners');
+  console.log('Seeded 8 products, 5 demo users, 8 QA orders, 3 disabled marketing snippets, 3 partners, and 8 coupons');
 }
 main().catch(e=>{console.error(e);process.exitCode=1}).finally(closeDb);

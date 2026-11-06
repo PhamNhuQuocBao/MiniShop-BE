@@ -13,6 +13,7 @@ export const orderDto = (o: any) => ({
   id: String(o._id), code: o.code, userId: o.userId ? String(o.userId) : null,
   shipping: o.shipping,
   items: o.items.map((i: any) => ({ productId: String(i.productId), name: i.name, unitPrice: i.unitPrice, quantity: i.quantity })),
+  subtotal: o.subtotal ?? o.total, discounts: o.discounts || [], appliedCoupons: o.appliedCoupons || [],
   total: o.total, status: o.status, shippingStatus: o.shippingStatus || 'pending',
   trackingNumber: o.trackingNumber || '', createdAt: o.createdAt, updatedAt: o.updatedAt,
 });
