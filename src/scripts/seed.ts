@@ -31,6 +31,10 @@ const snippets = [
     name: 'Hotjar', provider: 'hotjar', placement: 'afterInteractive', enabled: false,
     scriptBody: `(function(h,o,t,j,a,r){h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};h._hjSettings={hjid:0,hjsv:6};a=o.getElementsByTagName('head')[0];r=o.createElement('script');r.async=1;r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;a.appendChild(r)})(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');`,
   },
+  {
+    name: 'Campaign analytics', provider: 'custom', placement: 'beforeInteractive', enabled: false,
+    scriptBody: `window.minishopCampaign = { source: 'agency', campaign: 'q1-accessories' };`,
+  },
 ] as const;
 
 const qaAccounts = [
@@ -86,6 +90,6 @@ async function main(){
     const shipping = email.startsWith('alice') ? {name:'Nguyễn Alice',phone:'0901234567',address:'12 Nguyễn Trãi, Quận 1, TP.HCM'} : {name:'Trần Bob',phone:'0912345678',address:'45 Trần Hưng Đạo, Hoàn Kiếm, Hà Nội'};
     await Order.updateOne({code},{$setOnInsert:{code,userId:user._id,shipping,items:[{productId:product._id,name:product.name,unitPrice:product.price,quantity}],total:product.price*quantity,status:'placed',shippingStatus,trackingNumber}},{upsert:true});
   }
-  console.log('Seeded 8 products, 5 demo users, 8 QA orders, 3 disabled marketing snippets, 3 partners, and 8 coupons');
+  console.log('Seeded 8 products, 5 demo users, 8 QA orders, 4 disabled marketing snippets, 3 partners, and 8 coupons');
 }
 main().catch(e=>{console.error(e);process.exitCode=1}).finally(closeDb);
