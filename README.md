@@ -14,7 +14,7 @@ npm run dev
 # API: http://localhost:4000/api/health
 ```
 
-`npm run seed` upsert 8 sản phẩm, hai tài khoản demo cũ, ba tài khoản QA `admin@minishop.local`, `alice@minishop.local`, `bob@minishop.local`, 8 đơn QA (4 của Alice, 4 của Bob) và 3 marketing snippets mẫu đang tắt. Mật khẩu QA là `Minishop@123` (bcrypt); mật khẩu hai tài khoản demo cũ lấy từ `SEED_CUSTOMER_PASSWORD` và `SEED_ADMIN_PASSWORD`. Seed lại không nhân đôi đơn QA, không xóa đơn thật hoặc ghi đè snippet đã sửa. `npm run db:reset -- --confirm` xóa **toàn bộ sản phẩm, tài khoản, đơn hàng và marketing snippets** của DB `minishop`; không chạy trên DB cần giữ.
+`npm run seed` upsert 8 sản phẩm, hai tài khoản demo cũ, ba tài khoản QA `admin@minishop.local`, `alice@minishop.local`, `bob@minishop.local`, 8 đơn QA (4 của Alice, 4 của Bob), 3 marketing snippets mẫu đang tắt và 3 partner. Chuột Aero có URL ảnh supplier mẫu. Mật khẩu QA là `Minishop@123` (bcrypt); mật khẩu hai tài khoản demo cũ lấy từ `SEED_CUSTOMER_PASSWORD` và `SEED_ADMIN_PASSWORD`. Seed lại không nhân đôi đơn QA/partner, không xóa đơn thật hoặc ghi đè partner/snippet đã sửa. `npm run db:reset -- --confirm` xóa **toàn bộ sản phẩm, tài khoản, đơn hàng, marketing snippets và partners** của DB `minishop`; không chạy trên DB cần giữ.
 
 ## Account và đơn hàng
 
@@ -23,6 +23,10 @@ Các route `GET /api/account/orders`, `GET /api/account/orders/:id`, `PATCH /api
 ## Marketing API
 
 `GET /api/marketing/snippets/enabled` là endpoint public cho frontend, chỉ trả snippet đang bật. Các endpoint `GET /api/marketing/snippets`, `GET /api/marketing/snippets/:id`, `POST /api/marketing/snippets`, `PATCH /api/marketing/snippets/:id`, `DELETE /api/marketing/snippets/:id` yêu cầu Bearer token của admin. Body tạo/cập nhật gồm `name`, `provider` (`facebook`, `gtm`, `tiktok`, `hotjar`, `custom`), `scriptBody` (JavaScript thuần), `placement` (`beforeInteractive` hoặc `afterInteractive`) và `enabled` (boolean). ID MongoDB được trả về dưới dạng chuỗi `id`; lỗi theo dạng `{ "error": { "code": "...", "message": "..." } }`.
+
+## Partner API
+
+`GET /api/partners/:id` là endpoint public; chỉ trả partner đang bật với `{partner:{id,name,trackingUrl,enabled}}`. ID không hợp lệ trả 400, ID không tồn tại hoặc đã tắt trả 404. Seed tạo 3 partner với ID cố định lần lượt `700000000000000000000001`, `700000000000000000000002`, `700000000000000000000003`; tracking URL hiện là example.com để QA thay khi tích hợp đối tác thật.
 
 Production: `npm run build && npm start`. BE chỉ bắt đầu nghe cổng sau khi kết nối MongoDB thành công. Health `/api/health` trả 503 khi DB không sẵn sàng.
 

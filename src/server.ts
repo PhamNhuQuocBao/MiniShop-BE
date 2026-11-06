@@ -13,6 +13,7 @@ import { auth, normalizeRole, signInToken } from './auth';
 import { marketingRouter } from './routes/marketing';
 import { accountRouter } from './routes/account';
 import { adminOrdersRouter } from './routes/adminOrders';
+import { partnersRouter } from './routes/partners';
 import { orderDto, userDto } from './dto';
 
 const app = express();
@@ -22,7 +23,7 @@ const origins = (process.env.CORS_ORIGINS || 'http://localhost:3000').split(',')
 app.use(cors({origin:(origin,cb)=>cb(null,!origin || origins.includes(origin))}));
 const route=(fn:(req:Request,res:Response)=>Promise<void>)=>(req:Request,res:Response,next:NextFunction)=>{fn(req,res).catch(next);};
 const error=(res:Response,status:number,code:string,message:string)=>res.status(status).json({error:{code,message}});
-const productDto=(p:any)=>({id:String(p._id),name:p.name,slug:p.slug,description:p.description,image:p.image,price:p.price,stock:p.stock});
+const productDto=(p:any)=>({id:String(p._id),name:p.name,slug:p.slug,description:p.description,image:p.image,supplierImageUrl:p.supplierImageUrl||'',price:p.price,stock:p.stock});
 
 app.get('/api/health',(_req,res)=>res.status(dbReady()?200:503).json({status:dbReady()?'ok':'unavailable'}));
 app.get('/api/products',route(async(req,res)=>{const q=typeof req.query.q==='string'?req.query.q.trim().slice(0,100):'';const filter=q?{name:{$regex:q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),$options:'i'}}:{};const products=await Product.find(filter).sort({name:1}).lean();res.json({products:products.map(productDto)});}));
@@ -36,6 +37,7 @@ app.get('/api/admin/summary',route(async(req,res)=>{const a=auth(req);const user
 app.use('/api/marketing/snippets', marketingRouter);
 app.use('/api/account', accountRouter);
 app.use('/api/admin/orders', adminOrdersRouter);
+app.use('/api/partners', partnersRouter);
 app.use((err:unknown,_req:Request,res:Response,_next:NextFunction)=>{if(err instanceof ZodError){error(res,400,'VALIDATION_ERROR',err.issues.map(i=>i.message).join('; '));return;}if(typeof err==='object'&&err!==null&&'code' in err&&err.code===11000){error(res,409,'DUPLICATE_EMAIL','Email đã được sử dụng');return;}console.error(err);error(res,500,'INTERNAL_ERROR','Đã có lỗi máy chủ');});
 
 async function main(){await connectDb();const port=Number(process.env.PORT)||4000;const server=app.listen(port,'0.0.0.0',()=>console.log(`MiniShop API listening on ${port}`));const stop=()=>server.close(()=>{closeDb().finally(()=>process.exit(0));});process.on('SIGTERM',stop);process.on('SIGINT',stop);}
