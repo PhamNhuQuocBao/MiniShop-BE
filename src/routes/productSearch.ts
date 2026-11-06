@@ -22,6 +22,6 @@ productSearchRouter.post('/', async (req, res, next) => {
       else { res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Bộ lọc không hợp lệ' } }); return; }
     }
     const products = await Product.find(query.length ? { $and: query } : {}).sort({ name: 1 }).lean();
-    res.json({ products: products.map(product => ({ id: String(product._id), name: product.name, slug: product.slug, description: product.description, image: product.image, supplierImageUrl: product.supplierImageUrl || '', category: product.category || 'general', price: product.price, stock: product.stock })) });
+    res.json({ products: products.map(product => ({ id: String(product._id), name: product.name, slug: product.slug, description: product.description, image: product.image, supplierImageUrl: product.supplierImageUrl || '', category: product.category || 'general', specifications: product.specifications || [], price: product.price, stock: product.stock })) });
   } catch (error) { next(error); }
 });

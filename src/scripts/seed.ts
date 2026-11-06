@@ -9,14 +9,14 @@ import { Partner } from '../models/Partner';
 import { Coupon } from '../models/Coupon';
 
 const products=[
-  ['Chuột không dây Aero','chuot-aero','Chuột gọn nhẹ, kết nối ổn định cho bàn làm việc.','mouse',349000,25],
-  ['Bàn phím cơ Mini 68','ban-phim-mini-68','Bàn phím 68 phím, cảm giác gõ rõ ràng.','keyboard',1290000,12],
-  ['Tai nghe Studio Lite','tai-nghe-studio-lite','Âm thanh trong trẻo cho học tập và giải trí.','headphones',790000,18],
-  ['USB-C Hub 6 cổng','usb-c-hub-6','Mở rộng HDMI, USB và khe thẻ nhớ.','hub',590000,20],
-  ['Giá đỡ laptop Fold','gia-do-laptop-fold','Giá đỡ nhôm gấp gọn, điều chỉnh độ cao.','stand',420000,30],
-  ['Cáp USB-C 2m','cap-usb-c-2m','Cáp sạc và truyền dữ liệu bền bỉ.','cable',159000,40],
-  ['Webcam Full HD','webcam-full-hd','Hình ảnh sắc nét cho cuộc họp trực tuyến.','webcam',890000,10],
-  ['Lót chuột Desk Mat','lot-chuot-desk-mat','Bề mặt rộng, mềm, chống trượt.','mat',270000,35],
+  {name:'Chuột không dây Aero',slug:'chuot-aero',description:'Chuột không dây cầm vừa tay, bề mặt nhám dễ bám và nút cuộn êm. Chuyển nhanh giữa laptop và máy tính bàn qua Bluetooth hoặc đầu thu USB 2.4 GHz.',image:'/products/wireless-mouse.webp',price:349000,stock:25,specifications:['Kết nối Bluetooth và USB 2.4 GHz','Cảm biến quang học 1.600 DPI','Thiết kế thuận tay phải, trọng lượng khoảng 90 g']},
+  {name:'Bàn phím cơ Mini 68',slug:'ban-phim-mini-68',description:'Bàn phím cơ 68 phím tiết kiệm diện tích bàn làm việc nhưng vẫn có cụm phím điều hướng. Keycap PBT nhám, kết nối bằng cáp USB-C tháo rời.',image:'/products/keyboard-68.webp',price:1290000,stock:12,specifications:['Bố cục 68 phím gọn cho bàn nhỏ','Keycap PBT bền màu','Cáp USB-C tháo rời, switch linear']},
+  {name:'Tai nghe Studio Lite',slug:'tai-nghe-studio-lite',description:'Tai nghe chụp tai với đệm mềm và âm thanh cân bằng để nghe nhạc, học online hoặc gọi video. Gập gọn khi mang theo, sạc lại qua USB-C.',image:'/products/headphones.webp',price:790000,stock:18,specifications:['Driver 40 mm, kết nối Bluetooth 5.3','Thời gian nghe tham khảo đến 25 giờ','Micro tích hợp và cổng sạc USB-C']},
+  {name:'USB-C Hub 6 cổng',slug:'usb-c-hub-6',description:'Hub nhôm nhỏ gọn mở rộng một cổng USB-C thành HDMI, USB-A, khe thẻ nhớ và cổng sạc. Phù hợp cho laptop mỏng khi cần kết nối màn hình và phụ kiện.',image:'/products/usb-c-hub.webp',price:590000,stock:20,specifications:['HDMI hỗ trợ tối đa 4K ở 30 Hz','2 cổng USB-A, đầu đọc SD và microSD','USB-C Power Delivery passthrough đến 100 W']},
+  {name:'Giá đỡ laptop Fold',slug:'gia-do-laptop-fold',description:'Giá đỡ hợp kim nhôm có thể gấp phẳng khi không dùng. Sáu nấc điều chỉnh giúp nâng màn hình lên ngang tầm mắt và tạo khoảng thoáng cho máy tản nhiệt.',image:'/products/laptop-stand.webp',price:420000,stock:30,specifications:['Hợp kim nhôm, đệm silicon chống trượt','6 nấc điều chỉnh độ cao','Phù hợp laptop kích thước đến 16 inch']},
+  {name:'Cáp USB-C 2m',slug:'cap-usb-c-2m',description:'Cáp USB-C dài 2 m với lớp bọc dù chắc tay, tiện sạc thiết bị ở bàn làm việc hoặc cạnh giường. Hai đầu cắm được gia cố để hạn chế gãy gập khi sử dụng hằng ngày.',image:'/products/usb-c-cable.webp',price:159000,stock:40,specifications:['Chiều dài 2 m, hai đầu USB-C','Sạc Power Delivery tối đa 60 W','Truyền dữ liệu chuẩn USB 2.0']},
+  {name:'Webcam Full HD',slug:'webcam-full-hd',description:'Webcam 1080p gắn gọn trên viền màn hình, hỗ trợ lấy nét cố định cho các cuộc họp trực tuyến. Có micro tích hợp và nắp che ống kính khi cần riêng tư.',image:'/products/webcam.webp',price:890000,stock:10,specifications:['Video Full HD 1080p ở 30 fps','Micro tích hợp, kết nối USB-A','Kẹp màn hình và nắp che ống kính']},
+  {name:'Lót chuột Desk Mat',slug:'lot-chuot-desk-mat',description:'Tấm lót bàn rộng cho cả bàn phím và chuột, bề mặt vải mịn giúp chuột di chuyển ổn định. Mép may viền và đáy cao su bám bàn, dễ cuộn lại khi chuyển chỗ làm.',image:'/products/desk-mat.webp',price:270000,stock:35,specifications:['Kích thước 80 × 30 cm','Bề mặt vải mịn, mép may viền','Đáy cao su chống trượt']},
 ] as const;
 const snippets = [
   {
@@ -30,6 +30,10 @@ const snippets = [
   {
     name: 'Hotjar', provider: 'hotjar', placement: 'afterInteractive', enabled: false,
     scriptBody: `(function(h,o,t,j,a,r){h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};h._hjSettings={hjid:0,hjsv:6};a=o.getElementsByTagName('head')[0];r=o.createElement('script');r.async=1;r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;a.appendChild(r)})(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');`,
+  },
+  {
+    name: 'Campaign analytics', provider: 'custom', placement: 'beforeInteractive', enabled: false,
+    scriptBody: `window.minishopCampaign = { source: 'agency', campaign: 'q1-accessories' };`,
   },
 ] as const;
 
@@ -72,8 +76,7 @@ const coupons = [
 
 async function main(){
   await connectDb();
-  for(const [name,slug,description,image,price,stock] of products){await Product.updateOne({slug},{$set:{name,description,image,category:categories[slug],price,stock}}, {upsert:true});}
-  await Product.updateOne({slug:'chuot-aero'},{$set:{supplierImageUrl:'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=800&q=80'}});
+  for(const product of products){await Product.updateOne({slug:product.slug},{$set:{name:product.name,description:product.description,image:product.image,category:categories[product.slug],specifications:product.specifications,price:product.price,stock:product.stock}}, {upsert:true});}
   const accounts=[['Khách hàng mẫu','customer@minishop.demo','CUSTOMER',process.env.SEED_CUSTOMER_PASSWORD],['Quản trị mẫu','admin@minishop.demo','ADMIN',process.env.SEED_ADMIN_PASSWORD]] as const;
   for(const [name,email,role,password] of accounts){if(!password || password.length<8)throw new Error(`Set seed password (at least 8 chars) for ${email}`);await User.updateOne({email},{$set:{name,role,passwordHash:await bcrypt.hash(password,12)}},{upsert:true});}
   const qaPasswordHash = await bcrypt.hash('Minishop@123',12);
@@ -87,6 +90,6 @@ async function main(){
     const shipping = email.startsWith('alice') ? {name:'Nguyễn Alice',phone:'0901234567',address:'12 Nguyễn Trãi, Quận 1, TP.HCM'} : {name:'Trần Bob',phone:'0912345678',address:'45 Trần Hưng Đạo, Hoàn Kiếm, Hà Nội'};
     await Order.updateOne({code},{$setOnInsert:{code,userId:user._id,shipping,items:[{productId:product._id,name:product.name,unitPrice:product.price,quantity}],total:product.price*quantity,status:'placed',shippingStatus,trackingNumber}},{upsert:true});
   }
-  console.log('Seeded 8 products, 5 demo users, 8 QA orders, 3 disabled marketing snippets, 3 partners, and 8 coupons');
+  console.log('Seeded 8 products, 5 demo users, 8 QA orders, 4 disabled marketing snippets, 3 partners, and 8 coupons');
 }
 main().catch(e=>{console.error(e);process.exitCode=1}).finally(closeDb);

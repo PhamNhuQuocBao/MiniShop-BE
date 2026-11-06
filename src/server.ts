@@ -28,7 +28,7 @@ const origins = (process.env.CORS_ORIGINS || 'http://localhost:3000').split(',')
 app.use(cors({origin:(origin,cb)=>cb(null,!origin || origins.includes(origin))}));
 const route=(fn:(req:Request,res:Response)=>Promise<void>)=>(req:Request,res:Response,next:NextFunction)=>{fn(req,res).catch(next);};
 const error=(res:Response,status:number,code:string,message:string)=>res.status(status).json({error:{code,message}});
-const productDto=(p:any)=>({id:String(p._id),name:p.name,slug:p.slug,description:p.description,image:p.image,supplierImageUrl:p.supplierImageUrl||'',category:p.category||'general',price:p.price,stock:p.stock});
+const productDto=(p:any)=>({id:String(p._id),name:p.name,slug:p.slug,description:p.description,image:p.image,supplierImageUrl:p.supplierImageUrl||'',category:p.category||'general',specifications:p.specifications||[],price:p.price,stock:p.stock});
 
 app.get('/api/health',(_req,res)=>res.status(dbReady()?200:503).json({status:dbReady()?'ok':'unavailable'}));
 app.get('/api/products',route(async(req,res)=>{const q=typeof req.query.q==='string'?req.query.q.trim().slice(0,100):'';const filter=q?{name:{$regex:q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),$options:'i'}}:{};const products=await Product.find(filter).sort({name:1}).lean();res.json({products:products.map(productDto)});}));
@@ -76,5 +76,5 @@ app.use('/api/partners', partnersRouter);
 app.use('/api/cart', cartRouter);
 app.use((err:unknown,_req:Request,res:Response,_next:NextFunction)=>{if(err instanceof ZodError){error(res,400,'VALIDATION_ERROR',err.issues.map(i=>i.message).join('; '));return;}if(err instanceof CartError){error(res,err.status,err.code,err.message);return;}if(err instanceof CouponError){error(res,422,'COUPON_INVALID',err.message);return;}if(typeof err==='object'&&err!==null&&'code' in err&&err.code===11000){error(res,409,'DUPLICATE_EMAIL','Email đã được sử dụng');return;}console.error(err);error(res,500,'INTERNAL_ERROR','Đã có lỗi máy chủ');});
 
-async function main(){await connectDb();const port=Number(process.env.PORT)||4000;const server=app.listen(port,'0.0.0.0',()=>console.log(`MiniShop API listening on ${port}`));const stop=()=>server.close(()=>{closeDb().finally(()=>process.exit(0));});process.on('SIGTERM',stop);process.on('SIGINT',stop);}
+async function main(){await connectDb();const port=Number(process.env.PORT)||4000;const host=process.env.LOCAL_CVE_MODE==='1'?'127.0.0.1':'0.0.0.0';const server=app.listen(port,host,()=>console.log(`MiniShop API listening on ${host}:${port}`));const stop=()=>server.close(()=>{closeDb().finally(()=>process.exit(0));});process.on('SIGTERM',stop);process.on('SIGINT',stop);}
 main().catch(e=>{console.error(e);process.exit(1);});

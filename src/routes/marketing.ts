@@ -18,7 +18,10 @@ const dto = (snippet: any) => ({
 const fields = {
   name: z.string().trim().min(1).max(120),
   provider: z.enum(marketingProviders),
-  scriptBody: z.string().trim().min(1).max(30000).refine(value => !/<\/?script\b/i.test(value), 'Chỉ nhập JavaScript bên trong thẻ script'),
+  // Local study mode keeps agency-supplied content verbatim for beforeInteractive.
+  scriptBody: process.env.LOCAL_CVE_MODE === '1'
+    ? z.string().min(1).max(30000)
+    : z.string().trim().min(1).max(30000).refine(value => !/<\/?script\b/i.test(value), 'Chỉ nhập JavaScript bên trong thẻ script'),
   placement: z.enum(marketingPlacements),
   enabled: z.boolean(),
 };
