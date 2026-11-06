@@ -14,7 +14,11 @@ npm run dev
 # API: http://localhost:4000/api/health
 ```
 
-`npm run seed` upsert 8 sản phẩm, tài khoản `customer@minishop.demo` và `admin@minishop.demo`; mật khẩu lấy từ `SEED_CUSTOMER_PASSWORD` và `SEED_ADMIN_PASSWORD` bạn đặt. Seed không xóa đơn hàng. `npm run db:reset -- --confirm` xóa **toàn bộ sản phẩm, tài khoản và đơn hàng** của DB `minishop`; không chạy trên DB cần giữ.
+`npm run seed` upsert 8 sản phẩm, tài khoản `customer@minishop.demo` và `admin@minishop.demo`, cùng 3 marketing snippets mẫu đang tắt; mật khẩu lấy từ `SEED_CUSTOMER_PASSWORD` và `SEED_ADMIN_PASSWORD` bạn đặt. Seed lại không xóa đơn hàng hoặc ghi đè snippet đã sửa. `npm run db:reset -- --confirm` xóa **toàn bộ sản phẩm, tài khoản, đơn hàng và marketing snippets** của DB `minishop`; không chạy trên DB cần giữ.
+
+## Marketing API
+
+`GET /api/marketing/snippets/enabled` là endpoint public cho frontend, chỉ trả snippet đang bật. Các endpoint `GET /api/marketing/snippets`, `GET /api/marketing/snippets/:id`, `POST /api/marketing/snippets`, `PATCH /api/marketing/snippets/:id`, `DELETE /api/marketing/snippets/:id` yêu cầu Bearer token của admin. Body tạo/cập nhật gồm `name`, `provider` (`facebook`, `gtm`, `tiktok`, `hotjar`, `custom`), `scriptBody` (JavaScript thuần), `placement` (`beforeInteractive` hoặc `afterInteractive`) và `enabled` (boolean). ID MongoDB được trả về dưới dạng chuỗi `id`; lỗi theo dạng `{ "error": { "code": "...", "message": "..." } }`.
 
 Production: `npm run build && npm start`. BE chỉ bắt đầu nghe cổng sau khi kết nối MongoDB thành công. Health `/api/health` trả 503 khi DB không sẵn sàng.
 
