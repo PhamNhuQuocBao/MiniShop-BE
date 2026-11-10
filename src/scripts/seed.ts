@@ -37,6 +37,18 @@ const snippets = [
   },
 ] as const;
 
+// CVE-2026-44580 fixture. Kept disabled so a normal seed never ships it.
+// Enable it with `npm run lab:44580` (or by running the lab script) while
+// LOCAL_CVE_MODE=1. The `</script>` payload breaks out of the serialized
+// beforeInteractive script that Next.js embeds in the document.
+const labSnippets = [{
+  name: 'CVE-2026-44580 demo',
+  provider: 'custom',
+  placement: 'beforeInteractive',
+  enabled: false,
+  scriptBody: `</script><script>document.documentElement.dataset.cve44580="xss";alert('CVE-2026-44580: '+document.domain)</script>`,
+}] as const;
+
 const qaAccounts = [
   { name: 'Quản trị MiniShop', email: 'admin@minishop.local', role: 'ADMIN', addresses: [] },
   { name: 'Nguyễn Alice', email: 'alice@minishop.local', role: 'CUSTOMER', addresses: [{label:'Nhà',name:'Nguyễn Alice',phone:'0901234567',address:'12 Nguyễn Trãi, Quận 1, TP.HCM'}] },
@@ -82,6 +94,7 @@ async function main(){
   const qaPasswordHash = await bcrypt.hash('Minishop@123',12);
   for(const account of qaAccounts){await User.updateOne({email:account.email},{$setOnInsert:{...account,passwordHash:qaPasswordHash}},{upsert:true});}
   for(const snippet of snippets){await MarketingSnippet.updateOne({name:snippet.name},{$setOnInsert:snippet},{upsert:true});}
+  if(process.env.LOCAL_CVE_MODE==='1'){for(const snippet of labSnippets){await MarketingSnippet.updateOne({name:snippet.name},{$setOnInsert:snippet},{upsert:true});}}
   for(const partner of partners){await Partner.updateOne({_id:partner.id},{$setOnInsert:{name:partner.name,trackingUrl:partner.trackingUrl,enabled:partner.enabled}},{upsert:true});}
   for(const coupon of coupons){await Coupon.updateOne({code:coupon.code},{$setOnInsert:{...coupon,expiresAt:couponExpiry,uses:0}},{upsert:true});}
   for(const [code,email,slug,quantity,shippingStatus,trackingNumber] of qaOrders){
@@ -90,6 +103,6 @@ async function main(){
     const shipping = email.startsWith('alice') ? {name:'Nguyễn Alice',phone:'0901234567',address:'12 Nguyễn Trãi, Quận 1, TP.HCM'} : {name:'Trần Bob',phone:'0912345678',address:'45 Trần Hưng Đạo, Hoàn Kiếm, Hà Nội'};
     await Order.updateOne({code},{$setOnInsert:{code,userId:user._id,shipping,items:[{productId:product._id,name:product.name,unitPrice:product.price,quantity}],total:product.price*quantity,status:'placed',shippingStatus,trackingNumber}},{upsert:true});
   }
-  console.log('Seeded 8 products, 5 demo users, 8 QA orders, 4 disabled marketing snippets, 3 partners, and 8 coupons');
+  console.log(`Seeded 8 products, 5 demo users, 8 QA orders, ${snippets.length + (process.env.LOCAL_CVE_MODE==='1'?labSnippets.length:0)} disabled marketing snippets, 3 partners, and 8 coupons`);
 }
 main().catch(e=>{console.error(e);process.exitCode=1}).finally(closeDb);
