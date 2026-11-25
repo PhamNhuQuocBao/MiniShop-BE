@@ -37,7 +37,7 @@ app.use('/api/products/search', productSearchRouter);
 const loginSchema=z.object({email:z.string().email(),password:z.string().min(1)});
 app.post('/api/auth/login',route(async(req,res)=>{const input=loginSchema.parse(req.body);const user=await User.findOne({email:input.email.toLowerCase()});if(!user || !await bcrypt.compare(input.password,String(user.passwordHash))){error(res,401,'INVALID_CREDENTIALS','Email hoặc mật khẩu không đúng');return;}const token=signInToken(String(user._id),user.role);res.json({token,user:userDto(user)});}));
 app.get('/api/auth/me',route(async(req,res)=>{const a=auth(req);if(!a){error(res,401,'UNAUTHORIZED','Vui lòng đăng nhập');return;}const user=await User.findById(a.id).lean();if(!user || normalizeRole(user.role)!==a.role){error(res,401,'UNAUTHORIZED','Phiên không hợp lệ');return;}res.json({user:userDto(user)});}));
-const orderSchema=z.object({shipping:z.object({name:z.string().trim().min(2).max(100),phone:z.string().trim().regex(/^[0-9+(). -]{8,20}$/),address:z.string().trim().min(8).max(300)}),items:z.array(z.object({productId:z.string(),quantity:z.number().int().positive().max(99)})).max(30).optional()});
+const orderSchema=z.object({shipping:z.object({name:z.string().trim().min(2).max(100),phone:z.string().trim().regex(/^[0-9+(). -]{8,20}$/),address:z.string().trim().min(8).max(300)}),items:z.array(z.object({productId:z.string(),quantity:z.number().int().positive().max(99)})).max(30).optional(),campaign:z.string().trim().max(512).optional()});
 app.post('/api/orders',route(async(req,res)=>{
   const input=orderSchema.parse(req.body);
   const {state,userId}=await resolveCart(req);
@@ -63,7 +63,7 @@ app.post('/api/orders',route(async(req,res)=>{
       reserved.push(couponCode);
     }
     const code='MS-'+Date.now().toString(36).toUpperCase()+'-'+randomBytes(3).toString('hex').toUpperCase();
-    order=await Order.create({code,userId:userId||undefined,shipping:input.shipping,items:lines,subtotal:priced.subtotal,discounts:priced.discounts,appliedCoupons:priced.appliedCoupons,total:priced.total,status:'placed'});
+    order=await Order.create({code,userId:userId||undefined,shipping:input.shipping,items:lines,subtotal:priced.subtotal,discounts:priced.discounts,appliedCoupons:priced.appliedCoupons,campaign:input.campaign||'',total:priced.total,status:'placed'});
   }catch(reason){for(const couponCode of reserved)await Coupon.updateOne({code:couponCode},{$inc:{uses:-1}});throw reason;}
   if(userId)await Cart.updateOne({userId},{$set:{lines:[],appliedCoupons:[]}});
   res.status(201).json({order:orderDto(order)});
